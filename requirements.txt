@@ -1,3 +1,5 @@
+setuptools
+
 # Firebase / Google Cloud
 google-cloud-firestore==2.16.1
 google-auth-oauthlib==1.2.0
