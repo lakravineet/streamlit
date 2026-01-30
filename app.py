@@ -42,28 +42,43 @@ if "saved" not in st.session_state:
     st.session_state.saved = False
 
 # -------- SIMPLE LOGIN --------
+# -------- KEY ONLY LOGIN --------
+# -------- FIREBASE KEY LOGIN (REUSABLE) --------
+# -------- FIREBASE KEY LOGIN (FIELD-BASED) --------
 if not st.session_state.user:
-    st.title("🔐 Enter Exam")
+    st.title("🔐 Candidate Login")
 
-    email = st.text_input("Enter your email")
-    name = st.text_input("Enter your name")
+    entered_key = st.text_input("Enter Your Access Key")
 
-    if st.button("Start Exam"):
-        if email and name:
-            st.session_state.user = {
-                "email": email,
-                "name": name,
-                "localId": email  # using email as unique id
-            }
-            st.rerun()
-        else:
-            st.warning("Enter details")
+    if st.button("Login"):
+
+        docs = db.collection("users").where("Key", "==", entered_key).stream()
+        user_doc = None
+
+        for d in docs:
+            user_doc = d.to_dict()
+            break
+
+        if not user_doc:
+            st.error("Invalid access key")
+            st.stop()
+
+        st.session_state.user = {
+            "name": user_doc["name"],
+            "exam_key": entered_key,
+            "localId": entered_key
+        }
+
+        st.rerun()
 
     st.stop()
 
+
+
+
 # -------- SIDEBAR --------
 st.sidebar.write(f"👤 {st.session_state.user['name']}")
-st.sidebar.write(f"📧 {st.session_state.user['email']}")
+#st.sidebar.write(f"📧 {st.session_state.user['email']}")
 
 if st.sidebar.button("Logout"):
     st.session_state.clear()
@@ -120,12 +135,12 @@ if st.session_state.view == "result":
         if st.session_state.answers.get(q["id"]) == q["answer"]:
             score += 1
 
-    st.success(f"🎉 Test Finished! Your Score: {score}/{total}")
-    st.balloons()
+    st.success(f"Test Finished! Your Score: {score}/{total}")
+    #st.balloons()
 
     if not st.session_state.saved:
         db.collection("results").add({
-            "email": st.session_state.user["email"],
+            #"email": st.session_state.user["email"],
             "name": st.session_state.user["name"],
             "uid": st.session_state.user["localId"],
             "score": score,
