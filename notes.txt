@@ -1,0 +1,23 @@
+
+# install libraries
+pip install -r requirements.txt
+
+
+python -m pip install -r requirements.txt
+
+
+#streamlit not found
+python -c "import sys; print(sys.executable)"
+
+
+python -m streamlit run streamlit_app.py
+
+
+python -m streamlit run test_firebase.py
+
+python -m streamlit run app.py
+
+
+python -m streamlit run delete_results.py
+
+
