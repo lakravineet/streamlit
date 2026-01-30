@@ -4,7 +4,8 @@
 serviceAccountKey.json
 secrets.toml
 .streamlit/secrets.toml
-.env
+serviceAccountKey.json
+.streamlit/
 
 
 # 🧠 Python
@@ -35,6 +36,7 @@ secret.txt
 
 # 🔥 Streamlit cache
 .streamlit/
+
 
 # Logs
 *.log
