@@ -1,5 +1,4 @@
 import streamlit as st
-from firebase_auth import auth
 from firebase_config import db
 from datetime import datetime, timedelta
 from streamlit_autorefresh import st_autorefresh
@@ -42,38 +41,30 @@ if "view" not in st.session_state:
 if "saved" not in st.session_state:
     st.session_state.saved = False
 
-# -------- LOGIN --------
+# -------- SIMPLE LOGIN --------
 if not st.session_state.user:
+    st.title("🔐 Enter Exam")
 
-    st.title("🔐 Exam Portal Login")
-    choice = st.selectbox("Login / Signup", ["Login", "Signup"])
-    email = st.text_input("Email")
-    password = st.text_input("Password", type="password")
+    email = st.text_input("Enter your email")
+    name = st.text_input("Enter your name")
 
-    if choice == "Signup":
-        if st.button("Create Account"):
-            try:
-                auth.create_user_with_email_and_password(email, password)
-                st.success("Account created. Now login.")
-            except Exception as e:
-                st.error(e)
-
-    if choice == "Login":
-        if st.button("Login"):
-            try:
-                login_user = auth.sign_in_with_email_and_password(email, password)
-                refreshed_user = auth.refresh(login_user['refreshToken'])
-                refreshed_user['email'] = login_user['email']
-                refreshed_user['localId'] = login_user['localId']
-                st.session_state.user = refreshed_user
-                st.rerun()
-            except Exception as e:
-                st.error(e)
+    if st.button("Start Exam"):
+        if email and name:
+            st.session_state.user = {
+                "email": email,
+                "name": name,
+                "localId": email  # using email as unique id
+            }
+            st.rerun()
+        else:
+            st.warning("Enter details")
 
     st.stop()
 
 # -------- SIDEBAR --------
-st.sidebar.write(f"Logged in as: {st.session_state.user['email']}")
+st.sidebar.write(f"👤 {st.session_state.user['name']}")
+st.sidebar.write(f"📧 {st.session_state.user['email']}")
+
 if st.sidebar.button("Logout"):
     st.session_state.clear()
     st.rerun()
@@ -135,6 +126,7 @@ if st.session_state.view == "result":
     if not st.session_state.saved:
         db.collection("results").add({
             "email": st.session_state.user["email"],
+            "name": st.session_state.user["name"],
             "uid": st.session_state.user["localId"],
             "score": score,
             "total": total,
