@@ -4,6 +4,8 @@
 serviceAccountKey.json
 secrets.toml
 .streamlit/secrets.toml
+.env
+
 
 # 🧠 Python
 __pycache__/
