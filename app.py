@@ -5,7 +5,7 @@ from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(page_title="Exam Portal", layout="wide")
 
-st.markdown("<h1 style='text-align:center;'>📝 Online Examination System</h1>", unsafe_allow_html=True)
+st.markdown("<h3 style='text-align:center;'>Examination Portal</h3>", unsafe_allow_html=True)
 
 # Hide Streamlit UI
 st.markdown("""
@@ -46,7 +46,7 @@ if "saved" not in st.session_state:
 # -------- FIREBASE KEY LOGIN (REUSABLE) --------
 # -------- FIREBASE KEY LOGIN (FIELD-BASED) --------
 if not st.session_state.user:
-    st.title("🔐 Candidate Login")
+    st.title("Login")
 
     entered_key = st.text_input("Enter Your Access Key")
 
@@ -77,7 +77,7 @@ if not st.session_state.user:
 
 
 # -------- SIDEBAR --------
-st.sidebar.write(f"👤 {st.session_state.user['name']}")
+st.sidebar.write(f"Welcome, {st.session_state.user['name']}")
 #st.sidebar.write(f"📧 {st.session_state.user['email']}")
 
 if st.sidebar.button("Logout"):

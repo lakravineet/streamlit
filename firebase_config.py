@@ -2,21 +2,42 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import streamlit as st
 import os
+import json
 
 def init_firebase():
-    if not firebase_admin._apps:
+    if firebase_admin._apps:
+        return firestore.client()
 
-        if st.secrets.get("firebase", None):  # Streamlit Cloud
-            cred = credentials.Certificate(dict(st.secrets["firebase"]))
+    # 1️⃣ RENDER / PRODUCTION (Environment Variables)
+    if os.getenv("FIREBASE_PROJECT_ID"):
+        firebase_config = {
+            "type": os.getenv("FIREBASE_TYPE"),
+            "project_id": os.getenv("FIREBASE_PROJECT_ID"),
+            "private_key_id": os.getenv("FIREBASE_PRIVATE_KEY_ID"),
+            "private_key": os.getenv("FIREBASE_PRIVATE_KEY").replace("\\n", "\n"),
+            "client_email": os.getenv("FIREBASE_CLIENT_EMAIL"),
+            "client_id": os.getenv("FIREBASE_CLIENT_ID"),
+            "auth_uri": os.getenv("FIREBASE_AUTH_URI"),
+            "token_uri": os.getenv("FIREBASE_TOKEN_URI"),
+            "auth_provider_x509_cert_url": os.getenv("FIREBASE_AUTH_PROVIDER_CERT_URL"),
+            "client_x509_cert_url": os.getenv("FIREBASE_CLIENT_CERT_URL"),
+        }
 
-        elif os.path.exists("serviceAccountKey.json"):  # Local
-            cred = credentials.Certificate("serviceAccountKey.json")
+        cred = credentials.Certificate(firebase_config)
 
-        else:
-            raise Exception("Firebase credentials not found")
+    # 2️⃣ STREAMLIT CLOUD (optional fallback)
+    elif hasattr(st, "secrets") and "firebase" in st.secrets:
+        cred = credentials.Certificate(dict(st.secrets["firebase"]))
 
-        firebase_admin.initialize_app(cred)
+    # 3️⃣ LOCAL MACHINE
+    elif os.path.exists("serviceAccountKey.json"):
+        cred = credentials.Certificate("serviceAccountKey.json")
 
+    else:
+        raise Exception("❌ Firebase credentials not found anywhere")
+
+    firebase_admin.initialize_app(cred)
     return firestore.client()
+
 
 db = init_firebase()
